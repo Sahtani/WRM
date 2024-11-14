@@ -2,6 +2,7 @@ package com.youcode.wrm.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
@@ -22,5 +23,6 @@ public class WaitingRoom {
     private List<Visitor> visitors;
 
     @NotNull
-    private int capacite ;
+    @Positive
+    private int capacity ;
 }
