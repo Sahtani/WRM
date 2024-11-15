@@ -2,6 +2,9 @@ package com.youcode.wrm.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 public class Visitor {
     @Id

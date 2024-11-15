@@ -25,4 +25,6 @@ public class WaitingRoom {
     @NotNull
     @Positive
     private int capacity ;
+
+    private String mode;
 }
