@@ -1,0 +1,15 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  datasource:
+    url: jdbc:mysql://mysql-prod:3306/wrm_prod
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+logging:
+  level:
+    root: ERROR

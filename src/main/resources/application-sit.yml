@@ -1,0 +1,16 @@
+spring:
+  config:
+    activate:
+      on-profile: sit
+  datasource:
+    url: jdbc:mysql://mysql-sit:3306/wrm_sit
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+logging:
+  level:
+    org.springframework: WARN
+    com.wrm: INFO
