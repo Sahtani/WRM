@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -52,7 +53,35 @@ public class QueueServiceImpl implements QueueService {
 
     @Override
     public QueueStatisticsDTO getStatistics(Long waitingRoomId) {
-        return null;
+        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
+                .orElseThrow(() -> new RuntimeException("WaitingRoom not found"));
+
+        List<Visit> visits = visitRepository.findByWaitingRoom(waitingRoom);
+
+        List<Visit> finishedVisits = visits.stream()
+                .filter(visit -> "finished".equalsIgnoreCase(visit.getStatus().toString()))
+                .toList();
+
+        double averageWaitTime = finishedVisits.stream()
+                .mapToLong(Visit::calculateWaitTime)
+                .average()
+                .orElse(0);
+
+        // Calculer la rotation des visiteurs (nombre total de visiteurs traités)
+        int totalVisitors = finishedVisits.size();
+
+        // Nombre total de places disponibles dans la salle d'attente
+        int totalSeats = waitingRoom.getCapacity();
+
+        // Calculer le taux de rotation
+        double rotationRate = totalVisitors > 0 ? (double) totalSeats / totalVisitors : 0;
+
+        return new QueueStatisticsDTO(
+                waitingRoom,
+                visits,
+                averageWaitTime,
+                rotationRate
+        );
     }
 
 }

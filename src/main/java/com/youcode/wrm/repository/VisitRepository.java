@@ -13,4 +13,7 @@ public interface VisitRepository extends JpaRepository<Visit, Long> {
     List<Visit> findByWaitingRoomAndStatus(WaitingRoom waitingRoom, VisitorStatus status);
     List<Visit> findByWaitingRoomOrderByPriorityDescArrivalTimeAsc(WaitingRoom waitingRoom);
     List<Visit> findByWaitingRoomOrderByEstimatedProcessingTimeAsc(WaitingRoom waitingRoom);
+    List<Visit> findAllByWaitingListId(Long id);
+
+    List<Visit> findByWaitingRoom(WaitingRoom waitingRoom);
 }

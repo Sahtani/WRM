@@ -8,5 +8,5 @@ import java.util.List;
 public record QueueStatisticsDTO(WaitingRoom waitingRoom,
                                        List<Visit> visits,
                                        double averageWaitTime,
-                                       int rotation) {
+                                       double rotationRate) {
 }

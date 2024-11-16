@@ -50,42 +50,42 @@ public class VisitServiceImpl extends GenericCrudServiceImpl<Visit, VisitRequest
         return mapper.toDto(savedVisit);
     }
 
-    // Méthode pour obtenir le prochain visiteur selon l'algorithme FIFO
-    public VisitResponseDTO getNextVisitorFIFO(Long waitingRoomId) {
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new EntityNotFoundException("WaitingRoom not found"));
-
-        return visitRepository.findByWaitingRoomAndStatus(waitingRoom, VisitorStatus.WAITING)
-                .stream()
-                .min(Comparator.comparing(Visit::getArrivalTime))
-                .map(mapper::toDto)
-                .orElseThrow(NoVisitorsWaitingException::new);
-    }
-
-    // Méthode pour obtenir le prochain visiteur selon la priorité
-    public VisitResponseDTO getNextVisitorByPriority(Long waitingRoomId) {
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new EntityNotFoundException("WaitingRoom not found"));
-
-        return visitRepository.findByWaitingRoomOrderByPriorityDescArrivalTimeAsc(waitingRoom)
-                .stream()
-                .filter(visit -> visit.getStatus() == VisitorStatus.WAITING)
-                .findFirst()
-                .map(mapper::toDto)
-                .orElseThrow(NoVisitorsWaitingException::new);
-    }
-
-    // Méthode pour obtenir le prochain visiteur selon SJF
-    public VisitResponseDTO getNextVisitorSJF(Long waitingRoomId) {
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
-                .orElseThrow(() -> new EntityNotFoundException("WaitingRoom not found"));
-
-        return visitRepository.findByWaitingRoomOrderByEstimatedProcessingTimeAsc(waitingRoom)
-                .stream()
-                .filter(visit -> visit.getStatus() == VisitorStatus.WAITING)
-                .findFirst()
-                .map(visit -> mapper.toDto(visit,))
-                .orElseThrow(NoVisitorsWaitingException::new);
-    }
+//    // Méthode pour obtenir le prochain visiteur selon l'algorithme FIFO
+//    public VisitResponseDTO getNextVisitorFIFO(Long waitingRoomId) {
+//        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
+//                .orElseThrow(() -> new EntityNotFoundException("WaitingRoom not found"));
+//
+//        return visitRepository.findByWaitingRoomAndStatus(waitingRoom, VisitorStatus.WAITING)
+//                .stream()
+//                .min(Comparator.comparing(Visit::getArrivalTime))
+//                .map(mapper::toDto)
+//                .orElseThrow(NoVisitorsWaitingException::new);
+//    }
+//
+//    // Méthode pour obtenir le prochain visiteur selon la priorité
+//    public VisitResponseDTO getNextVisitorByPriority(Long waitingRoomId) {
+//        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
+//                .orElseThrow(() -> new EntityNotFoundException("WaitingRoom not found"));
+//
+//        return visitRepository.findByWaitingRoomOrderByPriorityDescArrivalTimeAsc(waitingRoom)
+//                .stream()
+//                .filter(visit -> visit.getStatus() == VisitorStatus.WAITING)
+//                .findFirst()
+//                .map(mapper::toDto)
+//                .orElseThrow(NoVisitorsWaitingException::new);
+//    }
+//
+//    // Méthode pour obtenir le prochain visiteur selon SJF
+//    public VisitResponseDTO getNextVisitorSJF(Long waitingRoomId) {
+//        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
+//                .orElseThrow(() -> new EntityNotFoundException("WaitingRoom not found"));
+//
+//        return visitRepository.findByWaitingRoomOrderByEstimatedProcessingTimeAsc(waitingRoom)
+//                .stream()
+//                .filter(visit -> visit.getStatus() == VisitorStatus.WAITING)
+//                .findFirst()
+//                .map(visit -> mapper.toDto(visit,))
+//                .orElseThrow(NoVisitorsWaitingException::new);
+//    }
 
 }

@@ -1,10 +1,9 @@
 package com.youcode.wrm.entity;
 
+import com.youcode.wrm.entity.Embeddable.VisitId;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.Accessors;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -15,11 +14,12 @@ import java.time.LocalTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
+@Accessors(chain = true)
 public class Visit {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @EmbeddedId
+    private VisitId id;
 
     private LocalDateTime arrivalTime;
 
@@ -40,4 +40,11 @@ public class Visit {
     @ManyToOne
     @JoinColumn(name = "waiting_list_id", insertable = false, updatable = false)
     private WaitingRoom waitingRoom;
+
+    public long calculateWaitTime() {
+        if (arrivalTime != null && startTime != null) {
+            return Duration.between(arrivalTime, startTime).toMinutes();
+        }
+        return 0;
+    }
 }
