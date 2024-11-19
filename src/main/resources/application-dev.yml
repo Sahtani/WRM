@@ -1,19 +1,33 @@
 spring:
   config:
     activate:
-      on-profile: dev
+      on-profile: dev  # Bon, profil de développement défini
   datasource:
     url: jdbc:mysql://localhost:3306/wrm
     username: root
     password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # Ajouts recommandés pour la robustesse
+    hikari:
+      connection-timeout: 30000 # 30 sec
+      maximum-pool-size: 10
+      minimum-idle: 5
+      idle-timeout: 600000 # 10 minutes
+      max-lifetime: 1800000 # 30 minutes
+
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update  # Attention en production
     show-sql: true
     properties:
       hibernate:
         format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect  # Spécifier explicitement le dialect
+
 logging:
   level:
     org.springframework: INFO
     com.wrm: DEBUG
+    org.hibernate.SQL: DEBUG  # Ajouter pour plus de détails SQL
+    org.hibernate.type.descriptor.sql: TRACE  # Voir les paramètres des requêtes

@@ -7,29 +7,33 @@ import com.youcode.wrm.entity.Visit;
 import com.youcode.wrm.entity.Visitor;
 import com.youcode.wrm.entity.VisitorStatus;
 import com.youcode.wrm.entity.WaitingRoom;
-import com.youcode.wrm.exception.NoVisitorsWaitingException;
 import com.youcode.wrm.mapper.VisitMapper;
 import com.youcode.wrm.repository.VisitRepository;
 import com.youcode.wrm.repository.VisitorRepository;
 import com.youcode.wrm.repository.WaitingRoomRepository;
 import com.youcode.wrm.service.VisitService;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.time.LocalDateTime;
-import java.util.Comparator;
 
 @Service
 @Validated
-@RequiredArgsConstructor
 public class VisitServiceImpl extends GenericCrudServiceImpl<Visit, VisitRequestDTO, VisitResponseDTO, Long> implements VisitService {
 
     private final VisitRepository visitRepository;
     private final VisitorRepository visitorRepository;
     private final WaitingRoomRepository waitingRoomRepository;
     private final VisitMapper mapper;
+
+    public VisitServiceImpl(VisitRepository visitRepository, VisitorRepository visitorRepository, WaitingRoomRepository waitingRoomRepository, VisitMapper mapper) {
+        super(visitRepository, mapper);
+        this.visitRepository = visitRepository;
+        this.visitorRepository = visitorRepository;
+        this.waitingRoomRepository = waitingRoomRepository;
+        this.mapper = mapper;
+    }
 
     public VisitResponseDTO save(Long waitingListId, Long visitorId, VisitRequestDTO visitDTO) {
         Visitor visitor = visitorRepository.findById(visitorId)
@@ -71,7 +75,7 @@ public class VisitServiceImpl extends GenericCrudServiceImpl<Visit, VisitRequest
 //                .stream()
 //                .filter(visit -> visit.getStatus() == VisitorStatus.WAITING)
 //                .findFirst()
-//                .map(mapper::toDto)
+//                .map(mapper::toDto)git remote add origin https://github.com/username/repo.git
 //                .orElseThrow(NoVisitorsWaitingException::new);
 //    }
 //

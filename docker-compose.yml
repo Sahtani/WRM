@@ -1,8 +1,9 @@
 version: '3'
+
 services:
   mysql:
     image: mysql:8
-    container_name: mysql-container
+    container_name: mysql-wrm
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: wrm

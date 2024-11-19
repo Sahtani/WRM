@@ -1,17 +1,17 @@
 package com.youcode.wrm.entity.Embeddable;
 
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.io.Serializable;
 
 @Embeddable
-public record VisitId(
-        @NotNull
-        @AttributeOverride(name = "value", column = @Column(name = "visitor_id"))
-        Long visitorId,
-
-        @NotNull
-        @AttributeOverride(name = "value", column = @Column(name = "waiting_list_id"))
-        Long waitingListId) {
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@EqualsAndHashCode
+public class VisitId implements Serializable {
+        private Long visitorId;
+        private Long waitingRoomId;
 }
