@@ -3,55 +3,84 @@ package com.youcode.wrm.service.Implementations;
 import com.youcode.wrm.common.GenericCrudServiceImpl;
 import com.youcode.wrm.dto.Visit.VisitRequestDTO;
 import com.youcode.wrm.dto.Visit.VisitResponseDTO;
+import com.youcode.wrm.dto.WaitingRoom.WaitingRoomResponseDTO;
+import com.youcode.wrm.entity.Embeddable.VisitId;
 import com.youcode.wrm.entity.Visit;
-import com.youcode.wrm.entity.Visitor;
-import com.youcode.wrm.entity.VisitorStatus;
-import com.youcode.wrm.entity.WaitingRoom;
+import com.youcode.wrm.exception.WaitingRoomFullException;
 import com.youcode.wrm.mapper.VisitMapper;
 import com.youcode.wrm.repository.VisitRepository;
 import com.youcode.wrm.repository.VisitorRepository;
-import com.youcode.wrm.repository.WaitingRoomRepository;
 import com.youcode.wrm.service.VisitService;
+import com.youcode.wrm.service.WaitingRoomService;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
-import java.time.LocalDateTime;
-
 @Service
 @Validated
-public class VisitServiceImpl extends GenericCrudServiceImpl<Visit, VisitRequestDTO, VisitResponseDTO, Long> implements VisitService {
+public class VisitServiceImpl extends GenericCrudServiceImpl<Visit, VisitRequestDTO, VisitResponseDTO, VisitId> implements VisitService {
 
     private final VisitRepository visitRepository;
     private final VisitorRepository visitorRepository;
-    private final WaitingRoomRepository waitingRoomRepository;
+    private final WaitingRoomService waitingRoomService;
     private final VisitMapper mapper;
 
-    public VisitServiceImpl(VisitRepository visitRepository, VisitorRepository visitorRepository, WaitingRoomRepository waitingRoomRepository, VisitMapper mapper) {
+    @Value("${spring.app.default.capacity}")
+    private int defaultCapacity;
+
+    public VisitServiceImpl(VisitRepository visitRepository, VisitorRepository visitorRepository, WaitingRoomService waitingRoomService, VisitMapper mapper) {
         super(visitRepository, mapper);
         this.visitRepository = visitRepository;
         this.visitorRepository = visitorRepository;
-        this.waitingRoomRepository = waitingRoomRepository;
+        this.waitingRoomService = waitingRoomService;
         this.mapper = mapper;
     }
 
-    public VisitResponseDTO save(Long waitingListId, Long visitorId, VisitRequestDTO visitDTO) {
-        Visitor visitor = visitorRepository.findById(visitorId)
-                .orElseThrow(() -> new EntityNotFoundException("Visitor not found"));
+    public VisitResponseDTO save(VisitRequestDTO visitRequestDTO) {
+        // Validate input
+        if (visitRequestDTO == null) {
+            throw new IllegalArgumentException("Visit request cannot be null");
+        }
 
-        WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingListId)
-                .orElseThrow(() -> new EntityNotFoundException("WaitingRoom not found"));
+        if (visitRequestDTO.id() == null) {
+            throw new IllegalArgumentException("Visit ID cannot be null in the request");
+        }
 
-        Visit visit = new Visit();
-        visit.setVisitor(visitor);
-        visit.setWaitingRoom(waitingRoom);
-        visit.setArrivalTime(LocalDateTime.now());
-        visit.setStatus(VisitorStatus.WAITING);
-        visit.setPriority(visitDTO.priority());
-        visit.setEstimatedProcessingTime(visitDTO.estimatedProcessingTim());
+        Long waitingRoomId = visitRequestDTO.id().waitingRoomId();
+
+        if (waitingRoomId == null) {
+            throw new IllegalArgumentException("Waiting Room ID cannot be null in the request");
+        }
+
+        // Fetch waiting room
+        WaitingRoomResponseDTO waitingRoom = waitingRoomService.findById(waitingRoomId);
+
+        if (waitingRoom == null) {
+            throw new EntityNotFoundException("Waiting Room not found with ID: " + waitingRoomId);
+        }
+
+        // Check waiting room capacity
+        int maxCapacity = waitingRoom.capacity() != null ? waitingRoom.capacity() : defaultCapacity;
+        checkWaitingRoomCapacity(waitingRoomId, maxCapacity);
+
+        // Map DTO to entity and save
+        Visit visit = mapper.toEntity(visitRequestDTO);
 
         Visit savedVisit = visitRepository.save(visit);
+
+        // Map saved entity to response DTO
         return mapper.toDto(savedVisit);
+    }
+
+    private void checkWaitingRoomCapacity(Long waitingRoomId, int maxCapacity) {
+        int currentVisits = visitRepository.countByWaitingRoomId(waitingRoomId);
+        if (currentVisits >= maxCapacity) {
+            throw new WaitingRoomFullException(
+                    String.format("The waiting room (id: %d) has reached its maximum capacity of %d",
+                            waitingRoomId, maxCapacity)
+            );
+        }
     }
 
 //    // Méthode pour obtenir le prochain visiteur selon l'algorithme FIFO

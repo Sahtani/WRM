@@ -36,12 +36,10 @@ public class Visit {
 
     @ManyToOne
     @MapsId("visitorId")
-    @JoinColumn(name = "visitor_id", nullable = false)
     private Visitor visitor;
 
     @ManyToOne
     @MapsId("waitingRoomId")
-    @JoinColumn(name = "waiting_room_id", nullable = false)
     private WaitingRoom waitingRoom;
 
     public long calculateWaitTime() {

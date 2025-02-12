@@ -56,7 +56,7 @@ public class QueueServiceImpl implements QueueService {
         WaitingRoom waitingRoom = waitingRoomRepository.findById(waitingRoomId)
                 .orElseThrow(() -> new RuntimeException("WaitingRoom not found"));
 
-        List<Visit> visits = visitRepository.findByWaitingRoom(waitingRoom);
+        List<Visit> visits = visitRepository.findAllByWaitingListId(waitingRoom.getId());
 
         List<Visit> finishedVisits = visits.stream()
                 .filter(visit -> "finished".equalsIgnoreCase(visit.getStatus().toString()))

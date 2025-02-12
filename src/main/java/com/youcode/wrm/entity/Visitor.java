@@ -21,7 +21,7 @@ public class Visitor {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @OneToMany(mappedBy = "visitor", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "visitor", cascade = CascadeType.REMOVE)
 
     private List<Visit> visits = new ArrayList<>();
 
